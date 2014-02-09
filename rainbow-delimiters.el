@@ -4,7 +4,8 @@
 ;; Author: Jeremy Rayman <opensource@jeremyrayman.com>
 ;; Maintainer: Jeremy Rayman <opensource@jeremyrayman.com>
 ;; Created: 2010-09-02
-;; Version: 1.3.4
+;; Version: 20131015.404
+;; X-Original-Version: 1.3.4
 ;; Keywords: faces, convenience, lisp, matching, tools, rainbow, rainbow parentheses, rainbow parens
 ;; EmacsWiki: http://www.emacswiki.org/emacs/RainbowDelimiters
 ;; Github: http://github.com/jlr/rainbow-delimiters
@@ -320,6 +321,9 @@ the other rainbow-delimiters specific syntax tables based on the current
 major-mode. The syntax table is constructed by the function
 'rainbow-delimiters-make-syntax-table'.")
 
+(defsubst rainbow-delimiters-syntax-ppss (pos)
+  (parse-partial-sexp (point-min) pos))
+
 ;; syntax-table: used with syntax-ppss for determining current depth.
 (defun rainbow-delimiters-make-syntax-table (syntax-table)
   "Inherit SYNTAX-TABLE and add delimiters intended to be highlighted by mode."
@@ -336,7 +340,7 @@ major-mode. The syntax table is constructed by the function
   "Return # of nested levels of parens, brackets, braces LOC is inside of."
   (let ((depth
          (with-syntax-table rainbow-delimiters-syntax-table
-           (car (syntax-ppss loc)))))
+           (car (rainbow-delimiters-syntax-ppss loc)))))
     (if (>= depth 0)
         depth
       0))) ; ignore negative depths created by unmatched closing parens.
@@ -433,7 +437,7 @@ Returns t if char at loc meets one of the following conditions:
 - Inside a string.
 - Inside a comment.
 - Is an escaped char, e.g. ?\)"
-  (let ((parse-state (syntax-ppss loc)))
+  (let ((parse-state (rainbow-delimiters-syntax-ppss loc)))
     (or
      (nth 3 parse-state)                ; inside string?
      (nth 4 parse-state)                ; inside comment?
